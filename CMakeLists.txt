@@ -16,5 +16,8 @@ set(SRC_PATH          "${PROJECT_PATH}/src")
 # Verify that all project dependencies are met
 include(Dependencies)
 
+# Compilation options
+include(CompileOptions)
+
 # Add all source directories
 add_subdirectory(src)
