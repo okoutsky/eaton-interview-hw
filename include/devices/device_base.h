@@ -7,13 +7,13 @@
 #include <common/handler_holder.h>
 #include <common/types.h>
 
-namespace hw
+namespace hw::devices
 {
 
 class device_base
 {
 public:
-    using on_measurement_handler_t = void(std::string, std::vector<common::byte_type>);
+    using on_measurement_handler_t = void(std::string, std::vector<common::byte_t>);
     using on_error_handler_t       = void(common::error_code);
 
 public:

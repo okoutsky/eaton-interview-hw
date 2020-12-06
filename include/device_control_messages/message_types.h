@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hw::device_messages
+namespace hw::device_protocol
 {
 
 enum class message_type : uint8_t

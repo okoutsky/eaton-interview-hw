@@ -3,10 +3,10 @@
 #include <string>
 #include <vector>
 
-#include <device_messages/header.h>
-#include <device_messages/message_types.h>
+#include <device_protocol/header.h>
+#include <device_protocol/message_types.h>
 
-namespace hw::device_messages
+namespace hw::device_protocol
 {
 class measurement : public header
 {
@@ -16,7 +16,7 @@ public:
     {}
 
 public:
-    std::vector<common::byte_type> serialize() const override;
+    std::vector<common::byte_t> serialize() const override;
 
     std::string as_string() const override
     {
@@ -51,6 +51,6 @@ private:
 private:
     std::vector<uint16_t> _temperature_sensors;
     std::vector<uint8_t> _fans_speed;
-    std::vector<common::byte_type> _device_specific;
+    std::vector<common::byte_t> _device_specific;
 };
 }

@@ -9,9 +9,9 @@
 
 #include <common/config.h>
 #include <common/types.h>
-#include <device_messages/message_types.h>
+#include <device_protocol/message_types.h>
 
-namespace hw::device_messages
+namespace hw::device_control_messages
 {
 class header
 {
@@ -27,9 +27,10 @@ public:
 
     virtual ~header() = default;
 
-    virtual std::vector<common::byte_type> serialize() const
+    virtual std::vector<common::byte_t> serialize() const
     {
-        std::vector<common::byte_type> result(length());
+        // TODO: nicer copuing
+        std::vector<common::byte_t> result(length());
         std::copy(_device_name.begin(), _device_name.end(), result.begin());
 
         auto* data        = result.data() + common::config::max_device_name_length;
@@ -56,14 +57,14 @@ public:
         return ss.str();
     }
 
-    virtual std::tuple<size_t> deserialize(std::vector<common::byte_type> data_);
+    virtual std::tuple<size_t> deserialize(std::vector<common::byte_t> data_);
 
     const std::string& get_device_name() const { return _device_name; }
 
     message_type get_message_type() const { return _msg_type; }
 
 protected:
-    virtual size_t length() const { return sizeof(common::byte_type) * _device_name.size() + sizeof(_msg_type) + sizeof(_length); }
+    virtual size_t length() const { return sizeof(common::byte_t) * _device_name.size() + sizeof(_msg_type) + sizeof(_length); }
 
 private:
     std::string _device_name;

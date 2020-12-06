@@ -1,8 +1,8 @@
-#include <device_messages/measurement.h>
+#include <device_protocol/measurement.h>
 
-namespace hw::device_messages
+namespace hw::device_protocol
 {
-std::vector<common::byte_type> measurement::serialize() const
+std::vector<common::byte_t> measurement::serialize() const
 {
     auto result = header::serialize();
     result.resize(length());
@@ -40,6 +40,6 @@ std::vector<common::byte_type> measurement::serialize() const
 size_t measurement::length() const
 {
     return header::length() + sizeof(uint16_t) * _temperature_sensors.size() + sizeof(uint8_t) * _fans_speed.size() +
-           sizeof(common::byte_type) * _device_specific.size();
+           sizeof(common::byte_t) * _device_specific.size();
 }
 }
