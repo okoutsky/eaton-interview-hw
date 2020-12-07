@@ -4,7 +4,7 @@
 
 #include <common/handler_holder.h>
 #include <common/types.h>
-#include <device_control_messages/device_message_type.h>
+#include <device_control_messages/messages.h>
 #include <net/device_tcp_connection.h>
 
 namespace hw::net

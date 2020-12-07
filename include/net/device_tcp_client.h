@@ -7,10 +7,8 @@
 
 #include <common/handler_holder.h>
 #include <common/types.h>
-#include <device_control_messages/error.h>
-#include <device_control_messages/measurement.h>
 #include <device_control_messages/message_json_coverter.h>
-#include <device_control_messages/message_types.h>
+#include <device_control_messages/messages.h>
 #include <net/device_tcp_connection.h>
 
 

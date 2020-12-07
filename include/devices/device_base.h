@@ -6,7 +6,7 @@
 
 #include <common/handler_holder.h>
 #include <common/types.h>
-#include <device_control_messages/measurement.h>
+#include <device_control_messages/messages.h>
 
 namespace hw::devices
 {

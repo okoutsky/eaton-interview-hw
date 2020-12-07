@@ -5,7 +5,7 @@
 
 #include <boost/asio.hpp>
 
-#include <device_control_messages/measurement.h>
+#include <device_control_messages/messages.h>
 #include <devices/device_base.h>
 
 namespace hw::devices

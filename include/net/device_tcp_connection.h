@@ -7,8 +7,7 @@
 
 #include <common/handler_holder.h>
 #include <common/types.h>
-#include <device_control_messages/device_message_type.h>
-#include <device_control_messages/message_types.h>
+#include <device_control_messages/messages.h>
 
 
 namespace hw::net
@@ -79,10 +78,7 @@ private:
 
     void send_next_message()
     {
-        auto fill_sending_buffer_visitor = [this](auto msg_) { _sending_buffer = MessageSerializer::serialize(msg_); };
-
-        std::visit(fill_sending_buffer_visitor, _messages_to_send.front());
-
+        _sending_buffer = MessageSerializer::serialize(_messages_to_send.front());
         boost::asio::async_write(_sock, boost::asio::buffer(_sending_buffer), [this](auto ec_, auto) { handle_message_sent(ec_); });
         _messages_to_send.pop_front();
     }

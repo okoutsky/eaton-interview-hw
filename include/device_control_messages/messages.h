@@ -7,7 +7,7 @@
 
 namespace hw::device_control_messages
 {
-// TODO: ugly name
-using device_message_type = std::variant<device_control_messages::measurement, device_control_messages::error>; // TODO: move from here
+
+using device_message_type = std::variant<device_control_messages::measurement, device_control_messages::error>;
 
 }

@@ -7,7 +7,7 @@ namespace hw::device_control_messages
 std::string measurement::as_string() const
 {
     std::stringstream ss;
-    ss << header::as_string() << "\n";
+    ss << header::as_string() << '\n';
     ss << "-----------------------------------\n";
     ss << "TEMPERATURE SENSORS=(";
     for (size_t i = 0; i < temperature_sensors.size(); i++)
@@ -25,8 +25,7 @@ std::string measurement::as_string() const
             ss << ",";
     }
     ss << ")\n";
-
-    // TODO: device specific data?
+    ss << "-----------------------------------\n";
 
     return ss.str();
 }

@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include <common/asynchronous.h>
-#include <device_control_messages/measurement.h>
+#include <device_control_messages/messages.h>
 
 namespace hw
 {
