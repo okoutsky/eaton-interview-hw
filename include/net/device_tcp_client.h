@@ -8,6 +8,7 @@
 #include <common/types.h>
 #include <device_control_messages/messages.h>
 #include <net/device_tcp_connection.h>
+#include <net/types.h>
 
 
 namespace hw::net
@@ -38,7 +39,7 @@ public:
      * @param ip_address_ IP address of the center
      * @param tcp_port_ TCP port of the center
      */
-    void connect(const common::ip_address_t& ip_address_, common::port_t tcp_port_)
+    void connect(const ip_address_t& ip_address_, port_t tcp_port_)
     {
         if (_connected)
         {

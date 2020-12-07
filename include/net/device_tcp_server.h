@@ -6,6 +6,7 @@
 #include <common/types.h>
 #include <device_control_messages/messages.h>
 #include <net/device_tcp_connection.h>
+#include <net/types.h>
 
 namespace hw::net
 {
@@ -35,7 +36,7 @@ public:
      * @param ip_address_ IP address to listen on
      * @param tcp_port_ TCP port to listen on
      */
-    void listen(const common::ip_address_t& ip_address_, common::port_t tcp_port_)
+    void listen(const ip_address_t& ip_address_, port_t tcp_port_)
     {
         if (_acceptor.is_open())
             return;

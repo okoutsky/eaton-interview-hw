@@ -5,11 +5,7 @@
 
 namespace hw::common
 {
-using error_code = size_t;
-
+//! Byte type used through the whole codebase
 using byte_t = uint8_t;
-
-using ip_address_t = std::string;
-using port_t       = uint16_t;
 
 }
