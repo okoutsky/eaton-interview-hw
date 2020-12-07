@@ -2,8 +2,8 @@
 
 #include <boost/asio.hpp>
 
-#include <common/asynchronous.h>
 #include <common/handler_holder.h>
+#include <common/safe_async.h>
 #include <common/types.h>
 #include <device_control_messages/messages.h>
 #include <net/device_tcp_connection.h>
@@ -18,7 +18,7 @@ namespace hw::net
  * @tparam MessageSerializer Type of message serializer/deserializer
  */
 template <class MessageSerializer>
-class device_tcp_server : public common::asynchronous<device_tcp_server<MessageSerializer>>
+class device_tcp_server : public common::safe_async<device_tcp_server<MessageSerializer>>
 {
 public:
     /**
@@ -27,7 +27,7 @@ public:
      * @param ioc_ Boost.Asio io_context
      */
     device_tcp_server(boost::asio::io_context& ioc_)
-        : common::asynchronous<device_tcp_server<MessageSerializer>>(ioc_)
+        : common::safe_async<device_tcp_server<MessageSerializer>>(ioc_)
         , _acceptor(ioc_)
         , _sock(ioc_)
     {}

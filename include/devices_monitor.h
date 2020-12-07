@@ -4,16 +4,16 @@
 #include <memory>
 #include <unordered_map>
 
-#include <common/asynchronous.h>
+#include <common/safe_async.h>
 #include <device_control_messages/messages.h>
 
 namespace hw
 {
-class devices_monitor : public common::asynchronous<devices_monitor>
+class devices_monitor : public common::safe_async<devices_monitor>
 {
 public:
     devices_monitor(boost::asio::io_context& ioc_)
-        : common::asynchronous<devices_monitor>(ioc_)
+        : common::safe_async<devices_monitor>(ioc_)
     {}
 
     void new_measurement(std::shared_ptr<device_control_messages::measurement> measurement_) // Is shared ptr necessary?
