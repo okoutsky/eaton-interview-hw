@@ -17,8 +17,10 @@ public:
     virtual ~asynchronous() = default;
 
     template <class Func, class... Args>
-    void post_wrapper(Func /*func_*/, Args&&... /*args_*/)
-    {}
+    void post_member_wrapper(Func func_, Args&&... args_)
+    {
+        boost::asio::post(_strand, std::bind(std::move(func_), static_cast<AsyncClass*>(this), std::forward<decltype(args_)>(args_)...));
+    }
 
 protected:
     boost::asio::io_context::strand _strand;

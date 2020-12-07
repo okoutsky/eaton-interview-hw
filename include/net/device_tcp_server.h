@@ -2,6 +2,7 @@
 
 #include <boost/asio.hpp>
 
+#include <common/asynchronous.h>
 #include <common/handler_holder.h>
 #include <common/types.h>
 #include <device_control_messages/messages.h>
@@ -17,7 +18,7 @@ namespace hw::net
  * @tparam MessageSerializer Type of message serializer/deserializer
  */
 template <class MessageSerializer>
-class device_tcp_server
+class device_tcp_server : public common::asynchronous<device_tcp_server<MessageSerializer>>
 {
 public:
     /**
@@ -26,7 +27,8 @@ public:
      * @param ioc_ Boost.Asio io_context
      */
     device_tcp_server(boost::asio::io_context& ioc_)
-        : _acceptor(ioc_)
+        : common::asynchronous<device_tcp_server<MessageSerializer>>(ioc_)
+        , _acceptor(ioc_)
         , _sock(ioc_)
     {}
 
@@ -37,6 +39,19 @@ public:
      * @param tcp_port_ TCP port to listen on
      */
     void listen(const ip_address_t& ip_address_, port_t tcp_port_)
+    {
+        this->post_member_wrapper(&device_tcp_server<MessageSerializer>::listen_impl, std::move(ip_address_), tcp_port_);
+    }
+
+public:
+    //! Callback triggered when device control message is received. Callback parameter: deserialized device control message.
+    common::handler_holder<void(device_control_messages::device_message_type)> on_message;
+    //! Callback triggered when error occurs.
+    common::handler_holder<void()> on_error;
+
+private:
+    // Listen internal implementation - must be invoked from within strand context
+    void listen_impl(const ip_address_t& ip_address_, port_t tcp_port_)
     {
         if (_acceptor.is_open())
             return;
@@ -84,16 +99,9 @@ public:
             return;
         }
 
-        _acceptor.async_accept(_sock, [this](auto ec_) { handle_accept(ec_); });
+        _acceptor.async_accept(_sock, [this](auto ec_) { this->post_member_wrapper(&device_tcp_server<MessageSerializer>::handle_accept, ec_); });
     }
 
-public:
-    //! Callback triggered when device control message is received. Callback parameter: deserialized device control message.
-    common::handler_holder<void(device_control_messages::device_message_type)> on_message;
-    //! Callback triggered when error occurs.
-    common::handler_holder<void()> on_error;
-
-private:
     // Handler called when new TCP connection is accepted
     void handle_accept(boost::system::error_code ec_)
     {
@@ -106,20 +114,23 @@ private:
         auto conn        = std::make_shared<device_tcp_connection<MessageSerializer>>(std::move(_sock));
         conn->on_message = [this](auto msg_) { on_message(std::move(msg_)); };
         conn->on_close   = [this](auto id_) {
-            _connections.erase(id_);
-            std::cout << "conn close" << std::endl;
-        }; // TODO
+            /* TODO: Log connection close*/
+            this->post_member_wrapper(&device_tcp_server<MessageSerializer>::remove_connection, id_);
+        };
         conn->on_error = [this](auto id_) {
-            _connections.erase(id_);
-            std::cout << "conn error" << std::endl;
-        }; // TODO
+            /* TODO: Log connection error*/
+            this->post_member_wrapper(&device_tcp_server<MessageSerializer>::remove_connection, id_);
+        };
 
         conn->start_receive();
         auto id = conn->get_connection_id();
         _connections.emplace(id, std::move(conn));
 
-        _acceptor.async_accept(_sock, [this](auto ec_) { handle_accept(ec_); });
+        _acceptor.async_accept(_sock, [this](auto ec_) { this->post_member_wrapper(&device_tcp_server<MessageSerializer>::handle_accept, ec_); });
     }
+
+    // Callback for connection close and error
+    void remove_connection(size_t id_) { _connections.erase(id_); }
 
 private:
     boost::asio::ip::tcp::acceptor _acceptor;

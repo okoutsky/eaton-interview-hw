@@ -26,6 +26,7 @@ public:
      */
     handler_holder& operator=(std::function<HandlerSignature> handler_)
     {
+        std::scoped_lock lock(_mtx);
         _handler = std::move(handler_);
         return *this;
     }
@@ -39,11 +40,13 @@ public:
     template <class... Args>
     void operator()(Args&&... args_)
     {
+        std::scoped_lock lock(_mtx);
         if (_handler)
             (*_handler)(std::forward<Args>(args_)...);
     }
 
 private:
+    std::mutex _mtx;
     std::optional<std::function<HandlerSignature>> _handler;
 };
 }

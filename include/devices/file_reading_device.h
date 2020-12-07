@@ -5,13 +5,14 @@
 
 #include <boost/asio.hpp>
 
+#include <common/asynchronous.h>
 #include <device_control_messages/messages.h>
 #include <devices/device_base.h>
 
 namespace hw::devices
 {
 /** @brief Device reading temparature and fan speed information from provided sensor files */
-class file_reading_device : public device_base
+class file_reading_device : public device_base, public common::asynchronous<file_reading_device>
 {
 public:
     /**
@@ -29,14 +30,16 @@ public:
                         std::vector<std::string> temperature_files_,
                         std::vector<std::string> fan_speed_files_)
         : device_base(name_)
+        , common::asynchronous<file_reading_device>(ioc_)
         , _timer(ioc_)
+        , _strand(ioc_)
         , _reporting_period_ms(reporting_period_ms_)
         , _temperature_files(std::move(temperature_files_))
         , _fan_speed_files(std::move(fan_speed_files_))
     {}
 
     //! Start reporting
-    void start() { start_timer(); }
+    void start() { post_member_wrapper(&file_reading_device::start_timer); }
 
 private:
     // Start reporting timer
@@ -50,6 +53,7 @@ private:
 
 private:
     boost::asio::steady_timer _timer;
+    boost::asio::io_context::strand _strand;
     size_t _reporting_period_ms;
     std::vector<std::string> _temperature_files;
     std::vector<std::string> _fan_speed_files;

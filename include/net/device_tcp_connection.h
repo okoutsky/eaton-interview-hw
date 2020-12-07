@@ -5,6 +5,7 @@
 
 #include <boost/asio.hpp>
 
+#include <common/asynchronous.h>
 #include <common/handler_holder.h>
 #include <common/types.h>
 #include <device_control_messages/messages.h>
@@ -17,7 +18,7 @@ namespace hw::net
  * @tparam MessageSerializer Type of message serializer/deserializer
  */
 template <class MessageSerializer>
-class device_tcp_connection
+class device_tcp_connection : public common::asynchronous<device_tcp_connection<MessageSerializer>>
 {
 public:
     /**
@@ -26,16 +27,14 @@ public:
      * @param sock_ Connected TCP socket
      */
     device_tcp_connection(boost::asio::ip::tcp::socket sock_)
-        : _sock(std::move(sock_))
+        : common::asynchronous<device_tcp_connection<MessageSerializer>>(*(sock_.get_executor().target<boost::asio::io_context>()))
+        , _sock(std::move(sock_))
         , _recv_buffer(recv_buffer_len)
         , _connection_id(generate_id())
     {}
 
     /** @brief Start receiving messages */
-    void start_receive()
-    {
-        _sock.async_receive(boost::asio::buffer(_recv_buffer), [this](auto ec_, auto bytes_read_) { handle_receive(ec_, bytes_read_); });
-    }
+    void start_receive() { this->post_member_wrapper(&device_tcp_connection<MessageSerializer>::start_receive_impl); }
 
     /**
      * @brief Send device control message
@@ -44,9 +43,7 @@ public:
      */
     void send(device_control_messages::device_message_type message_)
     {
-        _messages_to_send.push_back(std::move(message_));
-        if (_messages_to_send.size() == 1)
-            send_next_message();
+        this->post_member_wrapper(&device_tcp_connection<MessageSerializer>::send_impl, std::move(message_));
     }
 
     /**
@@ -69,6 +66,21 @@ private:
     static constexpr size_t recv_buffer_len = 1024;
 
 private:
+    // Start receive internal implementation - must be invoked from within strand context
+    void start_receive_impl()
+    {
+        _sock.async_receive(boost::asio::buffer(_recv_buffer),
+                            [this](auto ec_, auto bytes_read_) { this->post_member_wrapper(&device_tcp_connection::handle_receive, ec_, bytes_read_); });
+    }
+
+    // Send internal implementaiton - must be invoked from within strand context
+    void send_impl(device_control_messages::device_message_type message_)
+    {
+        _messages_to_send.push_back(std::move(message_));
+        if (_messages_to_send.size() == 1)
+            send_next_message();
+    }
+
     // Handler called when data is received on socket
     void handle_receive(boost::system::error_code ec_, size_t bytes_read_)
     {

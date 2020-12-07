@@ -4,6 +4,7 @@
 
 #include <boost/asio.hpp>
 
+#include <common/asynchronous.h>
 #include <common/handler_holder.h>
 #include <common/types.h>
 #include <device_control_messages/messages.h>
@@ -21,7 +22,7 @@ namespace hw::net
  * @tparam MessageSerializer Type of message serializer/deserializer
  */
 template <class MessageSerializer>
-class device_tcp_client
+class device_tcp_client : public common::asynchronous<device_tcp_client<MessageSerializer>>
 {
 public:
     /**
@@ -30,7 +31,8 @@ public:
      * @param ioc_ Boost.Asio io_context
      */
     device_tcp_client(boost::asio::io_context& ioc_)
-        : _sock(ioc_)
+        : common::asynchronous<device_tcp_client<MessageSerializer>>(ioc_)
+        , _sock(ioc_)
     {}
 
     /**
@@ -40,6 +42,42 @@ public:
      * @param tcp_port_ TCP port of the center
      */
     void connect(const ip_address_t& ip_address_, port_t tcp_port_)
+    {
+        this->post_member_wrapper(&device_tcp_client::connect_impl, std::move(ip_address_), tcp_port_);
+    }
+
+    /**
+     * @brief Send device control message to device monitoring center
+     *
+     * @param message_ Message to send
+     */
+    void send(device_control_messages::device_message_type message_) { this->post_member_wrapper(&device_tcp_client::send_impl, std::move(message_)); }
+
+public:
+    //! Callback triggered when client successfully connects
+    common::handler_holder<void()> on_connect;
+    //! Callback triggered when error occurs
+    common::handler_holder<void()> on_error;
+    //! Callback triggered when connection is closed
+    common::handler_holder<void()> on_close;
+    //! Callback triggered when device control message is received. Callback parameter: deserialized device control message
+    common::handler_holder<void(device_control_messages::device_message_type)> on_message;
+
+private:
+    // Send internal implementation - must be invoked from within strand context
+    void send_impl(device_control_messages::device_message_type message_)
+    {
+        if (!_connection)
+        {
+            // TODO: log error
+            return;
+        }
+
+        _connection->send(std::move(message_));
+    }
+
+    // Connect internal implementation - must be invoked from within strand context
+    void connect_impl(const ip_address_t& ip_address_, port_t tcp_port_)
     {
         if (_connected)
         {
@@ -57,36 +95,10 @@ public:
         }
 
         boost::asio::ip::tcp::endpoint ep(ip, tcp_port_);
-        _sock.async_connect(ep, [this](boost::system::error_code ec_) { handle_connected(ec_); });
+        _sock.async_connect(ep,
+                            [this](boost::system::error_code ec_) { this->post_member_wrapper(&device_tcp_client<MessageSerializer>::handle_connected, ec_); });
     }
 
-    /**
-     * @brief Send device control message to device monitoring center
-     *
-     * @param message_ Message to send
-     */
-    void send(device_control_messages::device_message_type message_)
-    {
-        if (!_connection)
-        {
-            // TODO: log error
-            return;
-        }
-
-        _connection->send(std::move(message_));
-    }
-
-public:
-    //! Callback triggered when client successfully connects
-    common::handler_holder<void()> on_connect;
-    //! Callback triggered when error occurs
-    common::handler_holder<void()> on_error;
-    //! Callback triggered when connection is closed
-    common::handler_holder<void()> on_close;
-    //! Callback triggered when device control message is received. Callback parameter: deserialized device control message
-    common::handler_holder<void(device_control_messages::device_message_type)> on_message;
-
-private:
     // Handler called when TCP connection is established
     void handle_connected(boost::system::error_code ec_)
     {
