@@ -1,27 +1,43 @@
 #pragma once
 
-#include <cassert>
 #include <vector>
 
 #include <boost/asio.hpp>
 
 #include <common/handler_holder.h>
 #include <common/types.h>
-#include <device_control_messages/message_json_coverter.h>
 #include <device_control_messages/messages.h>
 #include <net/device_tcp_connection.h>
 
 
 namespace hw::net
 {
+
+/**
+ * @brief TCP client connecting to device monitoring center.
+ * Providing interface for transferring device control messages over TCP.
+ *
+ * @tparam MessageSerializer Type of message serializer/deserializer
+ */
 template <class MessageSerializer>
 class device_tcp_client
 {
 public:
+    /**
+     * @brief Constructor
+     *
+     * @param ioc_ Boost.Asio io_context
+     */
     device_tcp_client(boost::asio::io_context& ioc_)
         : _sock(ioc_)
     {}
 
+    /**
+     * @brief Connect to device monitoring center
+     *
+     * @param ip_address_ IP address of the center
+     * @param tcp_port_ TCP port of the center
+     */
     void connect(const common::ip_address_t& ip_address_, common::port_t tcp_port_)
     {
         if (_connected)
@@ -43,6 +59,11 @@ public:
         _sock.async_connect(ep, [this](boost::system::error_code ec_) { handle_connected(ec_); });
     }
 
+    /**
+     * @brief Send device control message to device monitoring center
+     *
+     * @param message_ Message to send
+     */
     void send(device_control_messages::device_message_type message_)
     {
         if (!_connection)
@@ -55,12 +76,17 @@ public:
     }
 
 public:
+    //! Callback triggered when client successfully connects
     common::handler_holder<void()> on_connect;
+    //! Callback triggered when error occurs
     common::handler_holder<void()> on_error;
+    //! Callback triggered when connection is closed
     common::handler_holder<void()> on_close;
+    //! Callback triggered when device control message is received. Callback parameter: deserialized device control message
     common::handler_holder<void(device_control_messages::device_message_type)> on_message;
 
 private:
+    // Handler called when TCP connection is established
     void handle_connected(boost::system::error_code ec_)
     {
         if (ec_)
@@ -78,7 +104,6 @@ private:
 
         on_connect();
     }
-
 
 private:
     boost::asio::ip::tcp::socket _sock;

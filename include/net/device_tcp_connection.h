@@ -9,30 +9,39 @@
 #include <common/types.h>
 #include <device_control_messages/messages.h>
 
-
 namespace hw::net
 {
+/**
+ * @brief Class transferring device control messages over TCP connection
+ *
+ * @tparam MessageSerializer Type of message serializer/deserializer
+ */
 template <class MessageSerializer>
 class device_tcp_connection
 {
 public:
+    /**
+     * @brief Constructor
+     *
+     * @param sock_ Connected TCP socket
+     */
     device_tcp_connection(boost::asio::ip::tcp::socket sock_)
         : _sock(std::move(sock_))
         , _recv_buffer(recv_buffer_len)
         , _connection_id(generate_id())
     {}
 
-    device_tcp_connection(const device_tcp_connection&) = delete;
-
-    device_tcp_connection(device_tcp_connection&& other_conn_)
-        : _sock(std::move(other_conn_._sock))
-    {}
-
+    /** @brief Start receiving messages */
     void start_receive()
     {
         _sock.async_receive(boost::asio::buffer(_recv_buffer), [this](auto ec_, auto bytes_read_) { handle_receive(ec_, bytes_read_); });
     }
 
+    /**
+     * @brief Send device control message
+     *
+     * @param message_ Message to send
+     */
     void send(device_control_messages::device_message_type message_)
     {
         _messages_to_send.push_back(std::move(message_));
@@ -40,17 +49,27 @@ public:
             send_next_message();
     }
 
+    /**
+     * @brief Get unique connection ID
+     *
+     * @return ID
+     */
     size_t get_connection_id() const { return _connection_id; }
 
 public:
+    //! Callback triggered when new device control message is received on the connection. Callback parameter: deserialized message.
     common::handler_holder<void(device_control_messages::device_message_type)> on_message;
+    //! Callback triggered when error occurs. Callback type: connection ID.
     common::handler_holder<void(size_t)> on_error;
+    //! Callback triggered when connection is closed. Callback type: connection ID.
     common::handler_holder<void(size_t)> on_close;
 
 private:
+    // Data is read in buffers of this size
     static constexpr size_t recv_buffer_len = 1024;
 
 private:
+    // Handler called when data is received on socket
     void handle_receive(boost::system::error_code ec_, size_t bytes_read_)
     {
         if (ec_)
@@ -76,6 +95,7 @@ private:
         _sock.async_receive(boost::asio::buffer(_recv_buffer), [this](auto ec_, auto bytes_read_) { handle_receive(ec_, bytes_read_); });
     }
 
+    // Send next message in queue
     void send_next_message()
     {
         _sending_buffer = MessageSerializer::serialize(_messages_to_send.front());
@@ -83,6 +103,7 @@ private:
         _messages_to_send.pop_front();
     }
 
+    // Handler called when data is sent to socket
     void handle_message_sent(boost::system::error_code ec_)
     {
         if (ec_)
@@ -96,6 +117,7 @@ private:
             send_next_message();
     }
 
+    // Generate unique connection ID
     size_t generate_id()
     {
         static std::atomic<size_t> id{0};
@@ -108,7 +130,6 @@ private:
     std::vector<hw::common::byte_t> _sending_buffer;
     std::vector<common::byte_t> _recv_buffer;
     std::vector<common::byte_t> _unprocessed_recv_data;
-
     const size_t _connection_id;
 };
 }

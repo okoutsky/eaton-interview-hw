@@ -10,15 +10,31 @@
 namespace hw::net
 {
 
+/**
+ * @brief TCP server listening for connection from devices
+ *
+ * @tparam MessageSerializer Type of message serializer/deserializer
+ */
 template <class MessageSerializer>
 class device_tcp_server
 {
 public:
+    /**
+     * @brief Constructor
+     *
+     * @param ioc_ Boost.Asio io_context
+     */
     device_tcp_server(boost::asio::io_context& ioc_)
         : _acceptor(ioc_)
         , _sock(ioc_)
     {}
 
+    /**
+     * @brief Start listening
+     *
+     * @param ip_address_ IP address to listen on
+     * @param tcp_port_ TCP port to listen on
+     */
     void listen(const common::ip_address_t& ip_address_, common::port_t tcp_port_)
     {
         if (_acceptor.is_open())
@@ -71,10 +87,13 @@ public:
     }
 
 public:
+    //! Callback triggered when device control message is received. Callback parameter: deserialized device control message.
     common::handler_holder<void(device_control_messages::device_message_type)> on_message;
+    //! Callback triggered when error occurs.
     common::handler_holder<void()> on_error;
 
 private:
+    // Handler called when new TCP connection is accepted
     void handle_accept(boost::system::error_code ec_)
     {
         if (ec_)
