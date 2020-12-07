@@ -61,7 +61,7 @@ private:
 
         if (ec)
         {
-            // TODO: log error creating address
+            std::cerr << me() << "Error forming IP address. EC(" << ec << ")" << std::endl;
             on_error();
             return;
         }
@@ -71,14 +71,14 @@ private:
         _acceptor.open(ep.protocol(), ec);
         if (ec)
         {
-            // TODO: log error
+            std::cerr << me() << "Error opening acceptor. EC(" << ec << ")" << std::endl;
             on_error();
         }
 
         _acceptor.set_option(boost::asio::socket_base::reuse_address(true), ec);
         if (ec)
         {
-            // TODO: log error
+            std::cerr << me() << "Error seting acceptor options. EC(" << ec << ")" << std::endl;
             on_error();
             return;
         }
@@ -86,7 +86,7 @@ private:
         _acceptor.bind(ep, ec);
         if (ec)
         {
-            // TODO: log error binding
+            std::cerr << me() << "Error binding acceptor. EC(" << ec << ")" << std::endl;
             on_error();
             return;
         }
@@ -94,7 +94,7 @@ private:
         _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
         if (ec)
         {
-            // TODO: log error listening
+            std::cerr << me() << "Error during listen. EC(" << ec << ")" << std::endl;
             on_error();
             return;
         }
@@ -108,7 +108,10 @@ private:
         if (ec_)
         {
             if (ec_ != boost::asio::error::operation_aborted)
+            {
+                std::cerr << me() << "Error during listen. EC(" << ec_ << ")" << std::endl;
                 on_error();
+            }
             return;
         }
 
@@ -129,6 +132,9 @@ private:
 
     // Callback for connection message
     void handle_conn_message(device_control_messages::device_message_type message_) { on_message(std::move(message_)); }
+
+    // For logging purposes
+    std::string me() const { return "[device_tcp_server] "; }
 
 private:
     boost::asio::ip::tcp::acceptor _acceptor;

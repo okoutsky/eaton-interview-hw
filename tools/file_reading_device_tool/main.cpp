@@ -10,8 +10,11 @@
 
 void print_help_message()
 {
-    // TODO: print help message
-    std::cout << "TODO" << std::endl;
+    std::cout << "Tool for reporting device temperature sensors and fan speeds to device monitor center using TCP connection.\n\n";
+    std::cout << "Example of usage:\n"
+              << "    ./file_reading_device_tool --server-ip 1.2.3.4 --server-port 1234 --device-name testing_device -t /sys/class/hwmon/hwmon4/temp1_input -t "
+                 "/sys/class/hwmon/hwmon4/temp2_input -f /sys/class/hwmon/hwmon2/fan1_input\n"
+              << std::endl;
 }
 
 int main(int argc_, char** argv_)
@@ -87,7 +90,10 @@ int main(int argc_, char** argv_)
         exit(EXIT_FAILURE);
     };
 
-    client->on_connect = [&device] { device->start(); };
+    client->on_connect = [&device] {
+        std::cout << "Client connected" << std::endl;
+        device->start();
+    };
 
     device->on_message = [&client](auto msg_) { client->send(std::move(msg_)); };
 

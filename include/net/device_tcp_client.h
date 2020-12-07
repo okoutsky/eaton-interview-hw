@@ -69,7 +69,7 @@ private:
     {
         if (!_connection)
         {
-            // TODO: log error
+            std::cerr << me() << "Send refused. REASON(not connected)" << std::endl;
             return;
         }
 
@@ -81,7 +81,8 @@ private:
     {
         if (_connected)
         {
-            // TODO: log error
+            std::cerr << me() << "Connect refused. REASON(already connected)" << std::endl;
+            return;
         }
 
         boost::system::error_code ec;
@@ -89,7 +90,7 @@ private:
 
         if (ec)
         {
-            // TODO: log error creating address
+            std::cerr << me() << "Error forming IP address. EC(" << ec << ")" << std::endl;
             on_error();
             return;
         }
@@ -103,7 +104,7 @@ private:
     {
         if (ec_)
         {
-            // TOOD: log connecting error
+            std::cerr << me() << "Error during connecting. EC(" << ec_ << ")" << std::endl;
             if (ec_ != boost::asio::error::operation_aborted)
                 on_error();
             return;
@@ -121,6 +122,9 @@ private:
     void handle_conn_message(device_control_messages::device_message_type message_) { on_message(std::move(message_)); }
     void handle_conn_close(size_t) { on_close(); }
     void handle_conn_error(size_t) { on_error(); }
+
+    // For logging purposes
+    std::string me() const { return "[device_tcp_client"; }
 
 private:
     boost::asio::ip::tcp::socket _sock;

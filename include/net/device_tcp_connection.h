@@ -83,9 +83,15 @@ private:
         if (ec_)
         {
             if (ec_ == boost::asio::error::eof)
+            {
                 on_close(_connection_id);
+            }
             else if (ec_ != boost::asio::error::operation_aborted)
+            {
+                std::cerr << me() << "Error receiving. EC(" << ec_ << ")" << std::endl;
                 on_error(_connection_id);
+            }
+
             return;
         }
 
@@ -119,7 +125,10 @@ private:
         if (ec_)
         {
             if (ec_ != boost::asio::error::operation_aborted)
+            {
+                std::cerr << me() << "Error sending message. EC(" << ec_ << ")" << std::endl;
                 on_error(_connection_id);
+            }
             return;
         }
 
@@ -133,6 +142,8 @@ private:
         static std::atomic<size_t> id{0};
         return id++;
     }
+
+    std::string me() const { return std::string{"[device_tcp_connection/"} + std::to_string(_connection_id) + std::string{"] "}; }
 
 private:
     boost::asio::ip::tcp::socket _sock;

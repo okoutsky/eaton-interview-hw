@@ -12,8 +12,10 @@
 
 void print_help_message()
 {
-    // TODO: help message
-    std::cout << "TODO" << std::endl;
+    std::cout << "Tool for monitoring devices in network. Runs TCP server to which device clients connect.\n\n";
+    std::cout << "Example of usage:\n"
+              << "    ./device_monitor_tool --ip 1.2.3.4 --port 1234\n"
+              << std::endl;
 }
 
 boost::asio::io_context ioc;
