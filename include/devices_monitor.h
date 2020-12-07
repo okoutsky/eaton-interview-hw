@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include <common/asynchronous.h>
-#include <device_protocol/measurement.h>
+#include <device_control_messages/measurement.h>
 
 namespace hw
 {
@@ -16,7 +16,7 @@ public:
         : common::asynchronous<devices_monitor>(ioc_)
     {}
 
-    void new_measurement(std::shared_ptr<device_protocol::measurement> measurement_) // Is shared ptr necessary?
+    void new_measurement(std::shared_ptr<device_control_messages::measurement> measurement_) // Is shared ptr necessary?
     {
         if (!measurement_)
         {
@@ -31,13 +31,13 @@ public:
     }
 
 private:
-    void notify_measurement(const device_protocol::measurement& measurement_)
+    void notify_measurement(const device_control_messages::measurement& measurement_)
     {
-        auto iter = _messages_received.find(measurement_.get_device_name());
+        auto iter = _messages_received.find(measurement_.device_name);
         if (iter == _messages_received.end())
-            _messages_received[measurement_.get_device_name()] = 1;
+            _messages_received[measurement_.device_name] = 1;
         else
-            _messages_received[measurement_.get_device_name()]++;
+            _messages_received[measurement_.device_name]++;
     }
 
 private:

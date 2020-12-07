@@ -22,7 +22,7 @@ public:
     void operator()(Args&&... args_)
     {
         if (_handler)
-            *_hander(std::forward<Args>(args_));
+            (*_handler)(std::forward<Args>(args_)...);
     }
 
 private:

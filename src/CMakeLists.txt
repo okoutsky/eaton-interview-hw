@@ -1,4 +1,4 @@
-set(target monitor) # TODO: monitor?
+set(target hw-eaton-lib) # TODO: monitor?
 
 set(include_path "${CMAKE_SOURCE_DIR}/include/")
 set(source_path  ${CMAKE_CURRENT_SOURCE_DIR})

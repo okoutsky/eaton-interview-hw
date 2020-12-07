@@ -6,16 +6,13 @@
 
 #include <common/handler_holder.h>
 #include <common/types.h>
+#include <device_control_messages/measurement.h>
 
 namespace hw::devices
 {
 
 class device_base
 {
-public:
-    using on_measurement_handler_t = void(std::string, std::vector<common::byte_t>);
-    using on_error_handler_t       = void(common::error_code);
-
 public:
     device_base(const std::string& name_)
         : _name(name_)
@@ -24,10 +21,9 @@ public:
     virtual ~device_base() = default;
 
 public:
-    common::handler_holder<on_measurement_handler_t> on_measurement;
-    common::handler_holder<on_error_handler_t> on_error;
+    common::handler_holder<void(device_control_messages::measurement)> on_measurement;
 
-private:
+protected:
     const std::string _name;
 };
 }
