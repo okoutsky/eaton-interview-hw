@@ -43,7 +43,7 @@ public:
      */
     void connect(const ip_address_t& ip_address_, port_t tcp_port_)
     {
-        this->post_member_wrapper(&device_tcp_client::connect_impl, std::move(ip_address_), tcp_port_);
+        this->post_member_safe(&device_tcp_client::connect_impl, std::move(ip_address_), tcp_port_);
     }
 
     /**
@@ -51,7 +51,7 @@ public:
      *
      * @param message_ Message to send
      */
-    void send(device_control_messages::device_message_type message_) { this->post_member_wrapper(&device_tcp_client::send_impl, std::move(message_)); }
+    void send(device_control_messages::device_message_type message_) { this->post_member_safe(&device_tcp_client::send_impl, std::move(message_)); }
 
 public:
     //! Callback triggered when client successfully connects
@@ -95,8 +95,7 @@ private:
         }
 
         boost::asio::ip::tcp::endpoint ep(ip, tcp_port_);
-        _sock.async_connect(ep,
-                            [this](boost::system::error_code ec_) { this->post_member_wrapper(&device_tcp_client<MessageSerializer>::handle_connected, ec_); });
+        _sock.async_connect(ep, this->wrap_member_safe(&device_tcp_client<MessageSerializer>::handle_connected));
     }
 
     // Handler called when TCP connection is established
@@ -110,17 +109,22 @@ private:
             return;
         }
 
-        _connection.emplace(this->_strand.context(), std::move(_sock));
-        _connection->on_message = [this](auto msg_) { on_message(std::move(msg_)); };
-        _connection->on_close   = [this](auto) { on_close(); };
-        _connection->on_error   = [this](auto) { on_error(); };
+        _connection             = std::make_shared<device_tcp_connection<MessageSerializer>>(this->_strand.context(), std::move(_sock));
+        _connection->on_message = this->wrap_member_safe(&device_tcp_client<MessageSerializer>::handle_conn_message);
+        _connection->on_close   = this->wrap_member_safe(&device_tcp_client<MessageSerializer>::handle_conn_close);
+        _connection->on_error   = this->wrap_member_safe(&device_tcp_client<MessageSerializer>::handle_conn_error);
 
         on_connect();
     }
 
+    // Handlers for connection callbacks
+    void handle_conn_message(device_control_messages::device_message_type message_) { on_message(std::move(message_)); }
+    void handle_conn_close(size_t) { on_close(); }
+    void handle_conn_error(size_t) { on_error(); }
+
 private:
     boost::asio::ip::tcp::socket _sock;
-    std::optional<device_tcp_connection<MessageSerializer>> _connection;
+    std::shared_ptr<device_tcp_connection<MessageSerializer>> _connection;
     std::vector<hw::common::byte_t> _recv_buffer;
     std::vector<hw::common::byte_t> _unprocessed_recv_data;
     bool _connected{false};

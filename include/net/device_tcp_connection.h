@@ -34,7 +34,7 @@ public:
     {}
 
     /** @brief Start receiving messages */
-    void start_receive() { this->post_member_wrapper(&device_tcp_connection<MessageSerializer>::start_receive_impl); }
+    void start_receive() { this->post_member_safe(&device_tcp_connection<MessageSerializer>::start_receive_impl); }
 
     /**
      * @brief Send device control message
@@ -43,7 +43,7 @@ public:
      */
     void send(device_control_messages::device_message_type message_)
     {
-        this->post_member_wrapper(&device_tcp_connection<MessageSerializer>::send_impl, std::move(message_));
+        this->post_member_safe(&device_tcp_connection<MessageSerializer>::send_impl, std::move(message_));
     }
 
     /**
@@ -67,11 +67,7 @@ private:
 
 private:
     // Start receive internal implementation - must be invoked from within strand context
-    void start_receive_impl()
-    {
-        _sock.async_receive(boost::asio::buffer(_recv_buffer),
-                            [this](auto ec_, auto bytes_read_) { this->post_member_wrapper(&device_tcp_connection::handle_receive, ec_, bytes_read_); });
-    }
+    void start_receive_impl() { _sock.async_receive(boost::asio::buffer(_recv_buffer), this->wrap_member_safe(&device_tcp_connection::handle_receive)); }
 
     // Send internal implementaiton - must be invoked from within strand context
     void send_impl(device_control_messages::device_message_type message_)
@@ -104,19 +100,21 @@ private:
             std::tie(message, bytes_read) = MessageSerializer::deserialize(_unprocessed_recv_data);
         }
 
-        _sock.async_receive(boost::asio::buffer(_recv_buffer), [this](auto ec_, auto bytes_read_) { handle_receive(ec_, bytes_read_); });
+        _sock.async_receive(boost::asio::buffer(_recv_buffer), this->wrap_member_safe(&device_tcp_connection<MessageSerializer>::handle_receive));
     }
 
     // Send next message in queue
     void send_next_message()
     {
         _sending_buffer = MessageSerializer::serialize(_messages_to_send.front());
-        boost::asio::async_write(_sock, boost::asio::buffer(_sending_buffer), [this](auto ec_, auto) { handle_message_sent(ec_); });
+        boost::asio::async_write(
+            _sock, boost::asio::buffer(_sending_buffer), this->wrap_member_safe(&device_tcp_connection<MessageSerializer>::handle_message_sent));
+
         _messages_to_send.pop_front();
     }
 
     // Handler called when data is sent to socket
-    void handle_message_sent(boost::system::error_code ec_)
+    void handle_message_sent(boost::system::error_code ec_, size_t)
     {
         if (ec_)
         {

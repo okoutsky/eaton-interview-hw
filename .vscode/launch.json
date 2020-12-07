@@ -28,6 +28,30 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "(gdb) device monitor tool",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/build-Clang 10.0.0-Debug/tools/device_monitor_tool/device_monitor_tool",
+            "args": [
+                "--ip",
+                "127.0.0.1",
+                "--port",
+                "12345",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

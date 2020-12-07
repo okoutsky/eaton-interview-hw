@@ -40,7 +40,7 @@ public:
      */
     void listen(const ip_address_t& ip_address_, port_t tcp_port_)
     {
-        this->post_member_wrapper(&device_tcp_server<MessageSerializer>::listen_impl, std::move(ip_address_), tcp_port_);
+        this->post_member_safe(&device_tcp_server<MessageSerializer>::listen_impl, std::move(ip_address_), tcp_port_);
     }
 
 public:
@@ -99,7 +99,7 @@ private:
             return;
         }
 
-        _acceptor.async_accept(_sock, [this](auto ec_) { this->post_member_wrapper(&device_tcp_server<MessageSerializer>::handle_accept, ec_); });
+        _acceptor.async_accept(_sock, this->wrap_member_safe(&device_tcp_server<MessageSerializer>::handle_accept));
     }
 
     // Handler called when new TCP connection is accepted
@@ -111,26 +111,24 @@ private:
                 on_error();
             return;
         }
+
         auto conn        = std::make_shared<device_tcp_connection<MessageSerializer>>(this->_strand.context(), std::move(_sock));
-        conn->on_message = [this](auto msg_) { on_message(std::move(msg_)); };
-        conn->on_close   = [this](auto id_) {
-            /* TODO: Log connection close*/
-            this->post_member_wrapper(&device_tcp_server<MessageSerializer>::remove_connection, id_);
-        };
-        conn->on_error = [this](auto id_) {
-            /* TODO: Log connection error*/
-            this->post_member_wrapper(&device_tcp_server<MessageSerializer>::remove_connection, id_);
-        };
+        conn->on_message = this->wrap_member_safe(&device_tcp_server<MessageSerializer>::handle_conn_message);
+        conn->on_close   = this->wrap_member_safe(&device_tcp_server<MessageSerializer>::remove_connection);
+        conn->on_error   = this->wrap_member_safe(&device_tcp_server<MessageSerializer>::remove_connection);
 
         conn->start_receive();
         auto id = conn->get_connection_id();
         _connections.emplace(id, std::move(conn));
 
-        _acceptor.async_accept(_sock, [this](auto ec_) { this->post_member_wrapper(&device_tcp_server<MessageSerializer>::handle_accept, ec_); });
+        _acceptor.async_accept(_sock, this->wrap_member_safe(&device_tcp_server<MessageSerializer>::handle_accept));
     }
 
     // Callback for connection close and error
     void remove_connection(size_t id_) { _connections.erase(id_); }
+
+    // Callback for connection message
+    void handle_conn_message(device_control_messages::device_message_type message_) { on_message(std::move(message_)); }
 
 private:
     boost::asio::ip::tcp::acceptor _acceptor;

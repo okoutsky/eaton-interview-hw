@@ -54,19 +54,19 @@ int main(int argc_, char** argv_)
 
     boost::asio::io_context ioc;
 
-    hw::net::device_tcp_server<hw::device_control_messages::json_serializer> server(ioc);
+    auto server = std::make_shared<hw::net::device_tcp_server<hw::device_control_messages::json_serializer>>(ioc);
 
-    server.on_error = [] {
+    server->on_error = [] {
         std::cerr << "Device TCP server error" << std::endl;
         exit(EXIT_FAILURE);
     };
 
-    server.on_message = [](auto msg_) {
+    server->on_message = [](auto msg_) {
         auto printing_visitor = [](auto m_) { std::cout << m_.as_string() << std::endl; };
         std::visit(printing_visitor, msg_);
     };
 
-    server.listen(listen_ip, listen_port);
+    server->listen(listen_ip, listen_port);
 
     ioc.run();
 

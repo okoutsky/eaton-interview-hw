@@ -39,7 +39,7 @@ public:
     {}
 
     //! Start reporting
-    void start() { post_member_wrapper(&file_reading_device::start_timer); }
+    void start() { post_member_safe(&file_reading_device::start_timer); }
 
 private:
     // Start reporting timer

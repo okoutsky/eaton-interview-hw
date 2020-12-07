@@ -8,7 +8,7 @@ namespace hw::devices
 void file_reading_device::start_timer()
 {
     _timer.expires_from_now(std::chrono::milliseconds(_reporting_period_ms));
-    _timer.async_wait([this](auto ec_) { post_member_wrapper(&file_reading_device::timer_tick, ec_); });
+    _timer.async_wait(wrap_member_safe(&file_reading_device::timer_tick));
 }
 
 void file_reading_device::timer_tick(boost::system::error_code ec_)

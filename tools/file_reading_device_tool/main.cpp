@@ -74,24 +74,24 @@ int main(int argc_, char** argv_)
 
     boost::asio::io_context ioc;
 
-    hw::net::device_tcp_client<hw::device_control_messages::json_serializer> client(ioc);
-    hw::devices::file_reading_device device(device_name, ioc, report_interval, temp_sensor_files, fan_speed_files);
+    auto client = std::make_shared<hw::net::device_tcp_client<hw::device_control_messages::json_serializer>>(ioc);
+    auto device = std::make_shared<hw::devices::file_reading_device>(device_name, ioc, report_interval, temp_sensor_files, fan_speed_files);
 
-    client.on_error = [] {
+    client->on_error = [] {
         std::cerr << "TCP connection to server error" << std::endl;
         exit(EXIT_FAILURE);
     };
 
-    client.on_close = [] {
+    client->on_close = [] {
         std::cerr << "TCP connection to server closed" << std::endl;
         exit(EXIT_FAILURE);
     };
 
-    client.on_connect = [&device] { device.start(); };
+    client->on_connect = [&device] { device->start(); };
 
-    device.on_message = [&client](auto msg_) { client.send(std::move(msg_)); };
+    device->on_message = [&client](auto msg_) { client->send(std::move(msg_)); };
 
-    client.connect(server_ip, server_port);
+    client->connect(server_ip, server_port);
 
     ioc.run();
 
