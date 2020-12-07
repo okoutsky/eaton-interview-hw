@@ -32,7 +32,7 @@ void file_reading_device::report_measurement()
         measurement.fans_speed.push_back(read_sensor_file(file_).value_or(device_control_messages::measurement::error_fan_speed));
     }
 
-    on_measurement(std::move(measurement));
+    on_message(std::move(measurement));
 }
 
 std::optional<uint16_t> file_reading_device::read_sensor_file(const std::string& path_)

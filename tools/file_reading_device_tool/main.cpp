@@ -30,7 +30,7 @@ int main()
 
     client.on_connect = [&device] { device.start(); };
 
-    device.on_measurement = [&client](hw::device_control_messages::measurement m_) { client.send(std::move(m_)); };
+    device.on_message = [&client](auto msg_) { client.send(std::move(msg_)); };
 
     client.connect("127.0.0.1", 12345);
 
