@@ -111,7 +111,7 @@ private:
                 on_error();
             return;
         }
-        auto conn        = std::make_shared<device_tcp_connection<MessageSerializer>>(std::move(_sock));
+        auto conn        = std::make_shared<device_tcp_connection<MessageSerializer>>(this->_strand.context(), std::move(_sock));
         conn->on_message = [this](auto msg_) { on_message(std::move(msg_)); };
         conn->on_close   = [this](auto id_) {
             /* TODO: Log connection close*/

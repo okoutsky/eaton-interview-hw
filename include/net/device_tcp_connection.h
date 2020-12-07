@@ -26,8 +26,8 @@ public:
      *
      * @param sock_ Connected TCP socket
      */
-    device_tcp_connection(boost::asio::ip::tcp::socket sock_)
-        : common::safe_async<device_tcp_connection<MessageSerializer>>(*(sock_.get_executor().target<boost::asio::io_context>()))
+    device_tcp_connection(boost::asio::io_context& ioc_, boost::asio::ip::tcp::socket sock_)
+        : common::safe_async<device_tcp_connection<MessageSerializer>>(ioc_)
         , _sock(std::move(sock_))
         , _recv_buffer(recv_buffer_len)
         , _connection_id(generate_id())

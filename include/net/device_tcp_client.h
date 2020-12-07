@@ -110,7 +110,7 @@ private:
             return;
         }
 
-        _connection.emplace(std::move(_sock));
+        _connection.emplace(this->_strand.context(), std::move(_sock));
         _connection->on_message = [this](auto msg_) { on_message(std::move(msg_)); };
         _connection->on_close   = [this](auto) { on_close(); };
         _connection->on_error   = [this](auto) { on_error(); };
