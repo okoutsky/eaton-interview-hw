@@ -1,0 +1,3 @@
+# Tools
+add_subdirectory(file_reading_device_tool)
+add_subdirectory(device_monitor_tool)
