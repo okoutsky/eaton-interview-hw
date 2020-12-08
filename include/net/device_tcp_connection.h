@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <deque>
+#include <iostream>
 
 #include <boost/asio.hpp>
 

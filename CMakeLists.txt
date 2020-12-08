@@ -13,6 +13,8 @@ set(INCLUDE_PATH      "${PROJECT_PATH}/include")
 set(MODULES_PATH      "${PROJECT_PATH}/modules")
 set(SRC_PATH          "${PROJECT_PATH}/src")
 
+option(BUILD_TESTS "Build tests" ON)
+
 # Verify that all project dependencies are met
 include(Dependencies)
 
@@ -22,3 +24,6 @@ include(CompileOptions)
 # Add all source directories
 add_subdirectory(src)
 add_subdirectory(tools)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
