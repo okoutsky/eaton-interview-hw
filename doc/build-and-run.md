@@ -9,8 +9,7 @@
 ## Docker environment
 Requirements for installing all dependencies can be avoided using provided Docker environment image [environment.Dockerfile](../dockerfile/environment.Dockerfile).
 
-### Building and running Docker environment image
-Run from the project root directory (might need sudo).
+Run the following commands from the project root directory (might need sudo).
 
 #### Build and run container
 ```
@@ -30,14 +29,14 @@ git clone https://github.com/okoutsky/eaton-interview-hw.git
 cd eaton-interview-hw
 ```
 
-#### Build (directly or using Docker environment container)
-1. Directly
+#### Build directly
 ```
 cmake -B./build -H.
 cmake --build ./build
 ```
 
-2. Usinng Docker. Build and run the container as described above and then
+#### Build usinng Docker container
+Build and run the container as described in the previous section and then:
 ```
 docker exec -it okoutsky-hw-env cmake -B/build -H/sources -GNinja
 docker exec -it okoutsky-hw-env cmake --build /build
