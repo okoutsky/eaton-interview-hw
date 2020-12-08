@@ -22,7 +22,7 @@ public:
      */
     header(const std::string& device_name_, message_type msg_type_)
         : device_name(device_name_)
-        , message_type(msg_type_)
+        , msg_type(msg_type_)
     {}
 
     virtual ~header() = default;
@@ -35,7 +35,7 @@ public:
     virtual std::string as_string() const;
 
 public:
-    std::string device_name{};                        ///< Device name
-    message_type message_type{message_type::unknown}; ///< Message type
+    std::string device_name{};                    ///< Device name
+    message_type msg_type{message_type::unknown}; ///< Message type
 };
 }

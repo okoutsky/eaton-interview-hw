@@ -48,7 +48,7 @@ TEST_CASE("Correct reports")
             hw::device_control_messages::measurement m;
             REQUIRE_NOTHROW(m = std::get<hw::device_control_messages::measurement>(msg_));
             REQUIRE(m.device_name == device_name);
-            REQUIRE(m.message_type == hw::device_control_messages::message_type::measurement);
+            REQUIRE(m.msg_type == hw::device_control_messages::message_type::measurement);
             REQUIRE(m.temperature_sensors == std::vector<uint16_t>{});
             REQUIRE(m.fans_speed == std::vector<uint8_t>{});
         };
@@ -64,7 +64,7 @@ TEST_CASE("Correct reports")
             hw::device_control_messages::measurement m;
             REQUIRE_NOTHROW(m = std::get<hw::device_control_messages::measurement>(msg_));
             REQUIRE(m.device_name == device_name);
-            REQUIRE(m.message_type == hw::device_control_messages::message_type::measurement);
+            REQUIRE(m.msg_type == hw::device_control_messages::message_type::measurement);
             REQUIRE(m.temperature_sensors == std::vector<uint16_t>{temp_1, temp_2});
             REQUIRE(m.fans_speed == std::vector<uint8_t>{fan_1});
         };

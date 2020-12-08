@@ -73,7 +73,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(device_control_messages::message_type,
 inline void to_json(nlohmann::json& json_, const measurement& measurement_)
 {
     json_[keys::device_name]         = measurement_.device_name;
-    json_[keys::message_type]        = measurement_.message_type;
+    json_[keys::message_type]        = measurement_.msg_type;
     json_[keys::temperature_sensors] = nlohmann::json::array();
     for (auto temp : measurement_.temperature_sensors)
     {
@@ -95,7 +95,7 @@ inline void to_json(nlohmann::json& json_, const measurement& measurement_)
 inline void from_json(const nlohmann::json& json_, measurement& measurement_)
 {
     json_.at(keys::device_name).get_to(measurement_.device_name);
-    json_.at(keys::message_type).get_to(measurement_.message_type);
+    json_.at(keys::message_type).get_to(measurement_.msg_type);
     json_.at(keys::temperature_sensors).get_to(measurement_.temperature_sensors);
     json_.at(keys::fans_speed).get_to(measurement_.fans_speed);
 }
@@ -116,7 +116,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(error::error_type,
 inline void to_json(nlohmann::json& json_, const error& error_)
 {
     json_[keys::device_name]  = error_.device_name;
-    json_[keys::message_type] = error_.message_type;
+    json_[keys::message_type] = error_.msg_type;
     json_[keys::err_type]     = error_.err_type;
 }
 
@@ -129,7 +129,7 @@ inline void to_json(nlohmann::json& json_, const error& error_)
 inline void from_json(const nlohmann::json& json_, error& error_)
 {
     json_.at(keys::device_name).get_to(error_.device_name);
-    json_.at(keys::message_type).get_to(error_.message_type);
+    json_.at(keys::message_type).get_to(error_.msg_type);
     json_.at(keys::err_type).get_to(error_.err_type);
 }
 

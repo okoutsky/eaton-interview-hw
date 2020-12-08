@@ -74,7 +74,7 @@ TEST_CASE("Reporting messages using TCP")
             hw::device_control_messages::measurement m;
             REQUIRE_NOTHROW(m = std::get<hw::device_control_messages::measurement>(msg_));
             REQUIRE(m.device_name == meas_msg.device_name);
-            REQUIRE(m.message_type == meas_msg.message_type);
+            REQUIRE(m.msg_type == meas_msg.msg_type);
             REQUIRE(m.temperature_sensors == meas_msg.temperature_sensors);
             REQUIRE(m.fans_speed == meas_msg.fans_speed);
         };
@@ -94,7 +94,7 @@ TEST_CASE("Reporting messages using TCP")
             hw::device_control_messages::error m;
             REQUIRE_NOTHROW(m = std::get<hw::device_control_messages::error>(msg_));
             REQUIRE(m.device_name == error_msg.device_name);
-            REQUIRE(m.message_type == error_msg.message_type);
+            REQUIRE(m.msg_type == error_msg.msg_type);
             REQUIRE(m.err_type == error_msg.err_type);
         };
     }
@@ -124,7 +124,7 @@ TEST_CASE("Reporting messages using TCP")
                         hw::device_control_messages::measurement m;
                         REQUIRE_NOTHROW(m = std::get<hw::device_control_messages::measurement>(received_messages[i]));
                         REQUIRE(m.device_name == meas_msg.device_name);
-                        REQUIRE(m.message_type == meas_msg.message_type);
+                        REQUIRE(m.msg_type == meas_msg.msg_type);
                         REQUIRE(m.temperature_sensors == meas_msg.temperature_sensors);
                         REQUIRE(m.fans_speed == meas_msg.fans_speed);
                     }
@@ -133,7 +133,7 @@ TEST_CASE("Reporting messages using TCP")
                         hw::device_control_messages::error m;
                         REQUIRE_NOTHROW(m = std::get<hw::device_control_messages::error>(received_messages[i]));
                         REQUIRE(m.device_name == error_msg.device_name);
-                        REQUIRE(m.message_type == error_msg.message_type);
+                        REQUIRE(m.msg_type == error_msg.msg_type);
                         REQUIRE(m.err_type == error_msg.err_type);
                     }
                 }

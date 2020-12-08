@@ -1,5 +1,5 @@
 set(DEFAULT_PROJECT_OPTIONS
-    CXX_STANDARD              20
+    CXX_STANDARD              2a
     CXX_STANDARD_REQUIRED     ON
     LINKER_LANGUAGE           "CXX"
     CXX_VISIBILITY_PRESET     "default"
@@ -19,7 +19,7 @@ set(DEFAULT_COMPILE_OPTIONS
         -Wuninitialized
         -Wmissing-field-initializers
 
-        -std=c++20 # TODO: should work without this line
+        -std=c++2a # TODO: should work without this line
 )
 
 # Linker options
