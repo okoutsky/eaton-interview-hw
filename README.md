@@ -2,32 +2,22 @@
 
 ## Description
 The assignment of the homework was following without further specification:
-```
-The problem to solve is following:
 
-                You monitor devices, which are sending data to you.
-
-                Each device have a unique name.
-
-                Each device produces measurements.
+<ins>The problem to solve is following</ins>:
+- You monitor devices, which are sending data to you.
+- Each device have a unique name.
+- Each device produces measurements.
 
 
 
-Challange is:
+<ins>Challange is<ins>:
+- Compute number of messages you got or read from the devices.
 
-                Compute number of messages you got or read from the devices.
-```
-
-
-
-
-The solution can be in any language (preferably C/C++).
-
-The scope is open, you must decide how the “devices” will work in your system.
-
-The solution should be posted on GitHub or a similar page for a review.
-
-Please add Makefile and documentation explaining us how to run your code.
+<ins>Further notes</ins>:
+- The solution can be in any language (preferably C/C++).
+- The scope is open, you must decide how the “devices” will work in your system.
+- The solution should be posted on GitHub or a similar page for a review.
+- Please add Makefile and documentation explaining us how to run your code.
 
 
 Popis reseni:
