@@ -49,17 +49,17 @@ docker exec -it okoutsky-hw-env cmake --build /build
 There are 2 network devices and a device monitoring center acting as a server. The monitoring center will print statistics about received messages in 3s intervals.
 
 #### Running directly
-In first terminal run Device1:
+In first terminal run device monitoring center:
+```
+./build/tools/device_monitor_tool/device_monitor_tool --ip 127.0.0.1 --port 12345 --stats-print-interval 3
+```
+
+In second terminal run Device1:
 ```
 ./build/tools/file_reading_device_tool/file_reading_device_tool --server-ip 127.0.0.1 --server-port 12345 --device-name Device1 -t /sys/class/hwmon/hwmon4/temp1_input -f /sys/class/hwmon/hwmon2/fan1_input
 ```
 
-In second terminal run Device2:
+In third terminal run Device2:
 ```
 ./build/tools/file_reading_device_tool/file_reading_device_tool --server-ip 127.0.0.1 --server-port 12345 --device-name Device2 -t /sys/class/hwmon/hwmon4/temp2_input -t /sys/class/hwmon/hwmon4/temp3_input
-```
-
-In third terminal run device monitoring center:
-```
-./build/tools/device_monitor_tool/device_monitor_tool --ip 127.0.0.1 --port 12345 --stats-print-interval 3
 ```
