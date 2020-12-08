@@ -3,6 +3,7 @@
 ### System components
 
 1. Devices
+    - [../include/devices/](../include/devices)
     - Abstraction of devices represented by `device_base` interface.
     - Each device is identified by a unique name.
     - Devices report new messages (measurements, errors...) with `device_base::on_mesage` callback.
