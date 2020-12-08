@@ -95,7 +95,12 @@ int main(int argc_, char** argv_)
         device->start();
     };
 
-    device->on_message = [&client](auto msg_) { client->send(std::move(msg_)); };
+    device->on_message = [&client](auto msg_) {
+        auto msg_sending_visitor = [](auto m_) { std::cout << "Sending message:\n" << m_.as_string() << std::endl; };
+        std::visit(msg_sending_visitor, msg_);
+
+        client->send(std::move(msg_));
+    };
 
     client->connect(server_ip, server_port);
 

@@ -36,7 +36,7 @@ public:
     std::string as_string() const override;
 
 public:
-    error_type err_type; ///< Error type
+    error_type err_type{error_type::unknown}; ///< Error type
 
 private:
     // Serialize error type to string

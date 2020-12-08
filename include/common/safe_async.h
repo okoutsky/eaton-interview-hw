@@ -53,7 +53,7 @@ public:
     template <class Func, class... Args>
     void post_member_safe(Func func_, Args&&... args_)
     {
-        auto to_post = [weak_this = std::weak_ptr<AsyncClass>(static_pointer_cast<AsyncClass>(this->shared_from_this())),
+        auto to_post = [weak_this = std::weak_ptr<AsyncClass>(std::static_pointer_cast<AsyncClass>(this->shared_from_this())),
                         func{std::move(func_)}](auto&&... args_) -> void {
             if (auto locked = weak_this.lock())
             {
@@ -73,12 +73,13 @@ public:
     template <class Func>
     auto wrap_member_safe(Func func_)
     {
-        return [weak_this = std::weak_ptr<AsyncClass>(static_pointer_cast<AsyncClass>(this->shared_from_this())), func{std::move(func_)}](auto&&... args_) {
-            if (auto locked = weak_this.lock())
-            {
-                locked->post_member_safe(std::move(func), std::forward<decltype(args_)>(args_)...);
-            }
-        };
+        return
+            [weak_this = std::weak_ptr<AsyncClass>(std::static_pointer_cast<AsyncClass>(this->shared_from_this())), func{std::move(func_)}](auto&&... args_) {
+                if (auto locked = weak_this.lock())
+                {
+                    locked->post_member_safe(std::move(func), std::forward<decltype(args_)>(args_)...);
+                }
+            };
     }
 
 protected:
