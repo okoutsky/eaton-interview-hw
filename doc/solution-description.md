@@ -19,7 +19,7 @@
     - Stores received messages and provides interface for retrieving them for analyses/statistics.
 1. Network library for TCP communication between devices and device control center.
     - [../include/net/](../include/net/)
-    - `device_tcp_connection` - Provides functionality for transmitting device control messages over TCP. Messages are serialized to a transporting format or deserialized back. Serializing/deserializing is independent from `device_tcp_connection` implementation. In the demonstration scenario (description [here](./build-and-run.sh)), messages are serialized to/from JSON format.
+    - `device_tcp_connection` - Provides functionality for transmitting device control messages over TCP. Messages are serialized to a transporting format or deserialized back. Serializing/deserializing is independent from `device_tcp_connection` implementation. In the demonstration scenario (description [here](./build-and-run.md)), messages are serialized to/from JSON format.
     - `device_tcp_server` - Instances of this class listen on provided IP address and TCP port for connections from devices. New messages are signaled by invoking `device_tcp_server::on_message` callback.
     - `device_tcp_client` - Instances connect to `device_tcp_server` using TCP and send device control messages to it.
 1. Executable tools.
