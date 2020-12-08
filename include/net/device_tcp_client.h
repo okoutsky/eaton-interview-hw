@@ -124,7 +124,7 @@ private:
     void handle_conn_error(size_t) { on_error(); }
 
     // For logging purposes
-    std::string me() const { return "[device_tcp_client"; }
+    std::string me() const { return "[device_tcp_client] "; }
 
 private:
     boost::asio::ip::tcp::socket _sock;
