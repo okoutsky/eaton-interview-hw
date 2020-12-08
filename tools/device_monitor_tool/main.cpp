@@ -73,6 +73,7 @@ int main(int argc_, char** argv_)
 
     hw::net::ip_address_t listen_ip;
     hw::net::port_t listen_port;
+    size_t num_threads;
 
     // clang-format off
     options.add_options()
@@ -82,7 +83,8 @@ int main(int argc_, char** argv_)
             ("port", po::value<hw::net::port_t>(&listen_port), 
                 "TCP port on which the device monitor will listen fir incomming device connections")
             ("stats-print-interval", po::value<size_t>(&stats_print_interval)->default_value(5),
-                "Interval in seconds in which stats of received messages will be printed.");
+                "Interval in seconds in which stats of received messages will be printed.")
+            ("threads", po::value<size_t>(&num_threads)->default_value(2));
     // clang-format on
 
     po::store(po::command_line_parser(argc_, argv_).options(options).run(), vm);
@@ -117,7 +119,15 @@ int main(int argc_, char** argv_)
 
     start_stats_printing();
 
-    ioc.run();
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < num_threads; i++)
+    {
+        threads.emplace_back([] { ioc.run(); });
+    }
+    for (auto& t : threads)
+    {
+        t.join();
+    }
 
     return EXIT_SUCCESS;
 }

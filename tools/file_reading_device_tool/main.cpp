@@ -28,6 +28,7 @@ int main(int argc_, char** argv_)
     hw::net::port_t server_port;
     std::string device_name;
     size_t report_interval;
+    size_t num_threads;
     std::vector<std::string> temp_sensor_files;
     std::vector<std::string> fan_speed_files;
 
@@ -42,6 +43,7 @@ int main(int argc_, char** argv_)
                 "Paths to files listing values of temperature sensors")
             ("fan-speed,f", po::value<std::vector<std::string>>(&fan_speed_files)->multitoken(), 
                 "Paths to files listing values of fans speeds")
+            ("threads", po::value<size_t>(&num_threads)->default_value(2))
             ;
     // clang-format on
 
@@ -104,7 +106,15 @@ int main(int argc_, char** argv_)
 
     client->connect(server_ip, server_port);
 
-    ioc.run();
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < num_threads; i++)
+    {
+        threads.emplace_back([&ioc] { ioc.run(); });
+    }
+    for (auto& t : threads)
+    {
+        t.join();
+    }
 
     return 0;
 }
