@@ -1,9 +1,0 @@
-{
-    "cmake.buildDirectory": "/build-${buildKit}-${buildType}"
-    "[cpp]": {
-        "editor.defaultFormatter": "ms-vscode.cpptools",
-        "editor.formatOnSave": true
-    },
-    "cmake.generator": "Ninja",
-    "C_Cpp.default.cppStandard": "c++20",
-}
