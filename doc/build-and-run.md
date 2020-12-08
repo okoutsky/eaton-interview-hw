@@ -24,9 +24,21 @@ docker stop okoutsky-hw-env
 ```
 
 ## Building code
-Getting project source:
-
+#### Getting project source
 ```
 git clone https://github.com/okoutsky/eaton-interview-hw.git
 cd eaton-interview-hw
+```
+
+#### Build (directly or using Docker environment container)
+1. Directly
+```
+cmake -B./build -H.
+cmake --build ./build
+```
+
+2. Usinng Docker. Build and run the container as described above and then
+```
+docker exec -it okoutsky-hw-env cmake -B/build -H/sources -GNinja
+docker exec -it okoutsky-hw-env cmake --build /build
 ```
